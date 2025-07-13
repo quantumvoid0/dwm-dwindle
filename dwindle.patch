@@ -1,0 +1,50 @@
+diff --git a/dwm.c b/dwm.c
+index 1443802..4281ffa 100644
+--- a/dwm.c
++++ b/dwm.c
+@@ -1109,6 +1109,45 @@ maprequest(XEvent *e)
+ 		manage(ev->window, &wa);
+ }
+ 
++void dwindle(Monitor *m);
++
++void
++dwindle(Monitor *m)
++{
++    unsigned int n;
++    Client *c;
++
++    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next))
++        n++;
++
++    if (n == 0)
++        return;
++
++    int x = m->wx;
++    int y = m->wy;
++    int w = m->ww;
++    int h = m->wh;
++
++    int toggle = 0; 
++
++    for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
++        if (toggle == 0) {
++            int neww = (n == 1) ? w : w / 2;
++            resize(c, x, y, neww - 2 * c->bw, h - 2 * c->bw, 0);
++            x += neww;
++            w -= neww;
++        } else {
++            int newh = (n == 1) ? h : h / 2;
++            resize(c, x, y, w - 2 * c->bw, newh - 2 * c->bw, 0);
++            y += newh;
++            h -= newh;
++        }
++        toggle = !toggle;
++        n--;
++    }
++}
++
++
+ void
+ monocle(Monitor *m)
+ {
